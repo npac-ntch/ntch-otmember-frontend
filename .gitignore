@@ -1,0 +1,12 @@
+# Node & Build
+node_modules/
+dist/
+build/
+coverage/
+
+# 環境變數
+.env
+
+# 系統隱藏檔
+.DS_Store
+Thumbs.db
