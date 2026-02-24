@@ -1,0 +1,32 @@
+name: Deploy UAT to Amazon S3
+
+on:
+  push:
+    branches:
+      - uat
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::793763954354:role/ntch-uat-otmember-role-github-oidc
+          aws-region: ap-northeast-1
+
+      - name: Sync to AWS S3 (Only public folder)
+        run: |
+          # 只將 dist 資料夾內的網頁檔案同步上去，並刪除 S3 上多餘的舊檔案
+          aws s3 sync ./dist s3://ntch-uat-otmember-frontend --delete
+
+      - name: Invalidate CloudFront Cache
+        run: |
+          aws cloudfront create-invalidation --distribution-id E10NX6JC54B0BU --paths "/*"
